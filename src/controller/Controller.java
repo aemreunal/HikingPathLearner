@@ -42,7 +42,7 @@ public class Controller {
     }
 
     private void initSystem() {
-        qMatrix = new QMatrix(numStates);
-        maze = new Maze(nValue, rValue);
+        qMatrix = new QMatrix(nValue);
+        maze = new Maze(nValue, rValue, qMatrix);
     }
 }

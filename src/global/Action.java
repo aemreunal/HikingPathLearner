@@ -7,15 +7,15 @@ package global;
  * emre.unal@ozu.edu.tr
  */
 
-public enum Actions {
+public enum Action {
     RIGHT(0),
     LEFT(1),
     UP(2),
     DOWN(3);
 
-    public final int value;
+    public final int index;
 
-    private Actions(int value) {
-        this.value = value;
+    private Action(int index) {
+        this.index = index;
     }
 }

@@ -8,5 +8,12 @@ package global;
  */
 
 public enum TerrainType {
-    GROUND, HILL;
+    GROUND(1),
+    HILL(4);
+
+    public final int reward;
+
+    private TerrainType(int reward) {
+        this.reward = reward;
+    }
 }
