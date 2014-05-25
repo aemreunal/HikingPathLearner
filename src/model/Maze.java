@@ -31,7 +31,6 @@ import java.util.Random;
  *---------------------------------------------------------------
  */
 
-
 public class Maze {
     private TerrainType[][] maze;
 
@@ -80,7 +79,7 @@ public class Maze {
     }
 
     public TerrainType getTerrainType(int state) {
-        return getTerrainType(toXCoor(state), toYCoor(state));
+        return getTerrainType(CoorStateConverter.toXCoor(nValue, state), CoorStateConverter.toYCoor(nValue, state));
     }
 
     public TerrainType getTerrainType(int xCoor, int yCoor) {
@@ -101,21 +100,5 @@ public class Maze {
         qMatrix.setReward(xCoor + 1, yCoor, Action.RIGHT, type.reward);
         // Arriving to this tile from right
         qMatrix.setReward(xCoor - 1, yCoor, Action.LEFT, type.reward);
-    }
-
-    public int toXCoor(int state) {
-        if (state % nValue == 0) {
-            return nValue - 1;
-        } else {
-            return (state % nValue) - 1;
-        }
-    }
-
-    public int toYCoor(int state) {
-        if (state % nValue == 0) {
-            return (state / nValue) - 1;
-        } else {
-            return (state / nValue);
-        }
     }
 }

@@ -65,16 +65,12 @@ public class QMatrix {
     public void setReward(int xCoor, int yCoor, Action action, double reward) {
         // Check if the cell is in bounds
         if ((xCoor >= 0 && xCoor < nValue) && (yCoor >= 0 && yCoor < nValue) ) {
-            setReward(toStateIndex(xCoor, yCoor), action, reward);
+            setReward(CoorStateConverter.toStateIndex(nValue, xCoor, yCoor), action, reward);
         }
     }
 
     public void setReward(int state, Action action, double reward) {
         // -1 to convert from state index to array index.
         actionValueMatrix[state - 1][action.index] = reward;
-    }
-
-    public int toStateIndex(int xCoor, int yCoor) {
-        return xCoor + (yCoor * nValue) + 1;
     }
 }
