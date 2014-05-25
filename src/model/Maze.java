@@ -93,12 +93,12 @@ public class Maze {
 
     private void setSurroundingRewards(int xCoor, int yCoor, TerrainType type) {
         // Arriving to this tile from above
-        qMatrix.setReward(xCoor, yCoor + 1, Action.DOWN, type.reward);
+        qMatrix.setImmediateReward(xCoor, yCoor + 1, Action.DOWN, type.reward);
         // Arriving to this tile from below
-        qMatrix.setReward(xCoor, yCoor - 1, Action.UP, type.reward);
+        qMatrix.setImmediateReward(xCoor, yCoor - 1, Action.UP, type.reward);
         // Arriving to this tile from left
-        qMatrix.setReward(xCoor + 1, yCoor, Action.RIGHT, type.reward);
+        qMatrix.setImmediateReward(xCoor + 1, yCoor, Action.RIGHT, type.reward);
         // Arriving to this tile from right
-        qMatrix.setReward(xCoor - 1, yCoor, Action.LEFT, type.reward);
+        qMatrix.setImmediateReward(xCoor - 1, yCoor, Action.LEFT, type.reward);
     }
 }

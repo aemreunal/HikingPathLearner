@@ -7,11 +7,11 @@ package model;
  * emre.unal@ozu.edu.tr
  */
 
+import controller.Controller;
+
 import java.util.Random;
 
 public class Agent {
-    public static final double RANDOM_MOVE_CHANCE = 0.3;
-
     private final int nValue;
     private QMatrix qMatrix;
     private int currentState = 1;
@@ -26,12 +26,12 @@ public class Agent {
     }
 
     public Action selectAction() {
-        if(random.nextDouble() < RANDOM_MOVE_CHANCE) {
+        if(random.nextDouble() < Controller.AGENT_RANDOM_MOVE_CHANCE) {
             // Move randomly
             return pickRandomAction();
         } else {
-            // Pick highest reward move
-            return pickMostRewardingAction();
+            // Pick highest Q value move
+            return pickMaxQValueAction();
         }
     }
 
@@ -43,8 +43,8 @@ public class Agent {
         return selectedAction;
     }
 
-    public Action pickMostRewardingAction() {
-        Action selectedAction = Action.UP;
+    public Action pickMaxQValueAction() {
+        Action selectedAction = pickRandomAction();
         double selectedReward = -Double.MAX_VALUE;
 
         for (int i = 0; i < Action.NUM_ACTIONS; i++) {

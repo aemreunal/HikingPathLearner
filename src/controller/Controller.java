@@ -18,8 +18,11 @@ import java.util.concurrent.TimeUnit;
 
 public class Controller extends Thread implements Runnable {
     private static final double DISCOUNT_FACTOR = 0.8;
+    public static final double AGENT_RANDOM_MOVE_CHANCE = 0.3;
+
     private static final double UPDATE_FREQUENCY_HZ = 5;
-    private static final long THREAD_SLEEP_TIME_MILLIS = (long) (1000 / UPDATE_FREQUENCY_HZ);
+    private static final long ONE_SECOND_IN_MILLIS = 1000;
+    private static final long THREAD_SLEEP_TIME_MILLIS = (long) (ONE_SECOND_IN_MILLIS / UPDATE_FREQUENCY_HZ);
 
     private QMatrix qMatrix;
     private Maze maze;
@@ -31,6 +34,8 @@ public class Controller extends Thread implements Runnable {
 
     public static void main(String[] args) {
         System.out.println("Welcome to the minimum energy hiking path learner, written by A. Emre Unal.");
+        System.out.println("Discount factor = " + DISCOUNT_FACTOR);
+        System.out.println("Agent random move chance = " + AGENT_RANDOM_MOVE_CHANCE);
         Controller controller = new Controller();
         controller.start();
     }
@@ -38,8 +43,6 @@ public class Controller extends Thread implements Runnable {
     public Controller() {
         requestParameters();
         initDataStructures();
-        System.out.println("Discount factor = " + DISCOUNT_FACTOR);
-        System.out.println("Agent random move chance = " + Agent.RANDOM_MOVE_CHANCE);
     }
 
     private void requestParameters() {
@@ -64,32 +67,36 @@ public class Controller extends Thread implements Runnable {
             if(agent.getCurrentState() == numStates) {
                 // Reached the end, create a new agent
                 agent = new Agent(nValue, qMatrix);
-                try {
-                    TimeUnit.SECONDS.sleep(1);
-                } catch (InterruptedException e) {
-                    System.err.println("Main thread sleep is interrupted!\nExiting.");
-                    System.exit(-1);
-                }
+                pauseThread(ONE_SECOND_IN_MILLIS);
+                continue;
             }
 
             // Select action
             Action selectedAction = agent.selectAction();
+
             // Execute action to get from state s to state s'
             agent.executeAction(selectedAction);
+
             // Receive immediate reward r(s, a)
-            double immediateReward = qMatrix.getReward(agent.getPreviousState(), selectedAction);
+            double immediateReward = qMatrix.getImmediateReward(agent.getPreviousState(), selectedAction);
+
             // Update table entry for Q(s, a) as: Q(s, a) = r(s, a) + y * maxQ(s', a')
-            double newQValue = immediateReward + DISCOUNT_FACTOR * qMatrix.getQValue(agent.getCurrentState(), agent.pickMostRewardingAction());
+            double newQValue = immediateReward + DISCOUNT_FACTOR * qMatrix.getQValue(agent.getCurrentState(), agent.pickMaxQValueAction());
             qMatrix.setQValue(agent.getPreviousState(), selectedAction, newQValue);
+
             // Update window to reflect state change
             window.update(agent.getCurrentState());
 
-            try {
-                TimeUnit.MILLISECONDS.sleep(THREAD_SLEEP_TIME_MILLIS);
-            } catch (InterruptedException e) {
-                System.err.println("Main thread sleep is interrupted!\nExiting.");
-                System.exit(-1);
-            }
+            pauseThread(THREAD_SLEEP_TIME_MILLIS);
+        }
+    }
+
+    private void pauseThread(long milliseconds) {
+        try {
+            TimeUnit.MILLISECONDS.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            System.err.println("Main thread sleep is interrupted!\nExiting.");
+            System.exit(-1);
         }
     }
 }

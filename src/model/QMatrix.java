@@ -37,29 +37,29 @@ public class QMatrix {
     private int nValue;
     private int numStates;
     private double[][] actionValueMatrix;
-    private double[][] rewards;
+    private double[][] immediateRewards;
 
     public QMatrix(int nValue) {
         this.nValue = nValue;
         this.numStates = (int) Math.pow(nValue, 2);
         this.actionValueMatrix = new double[numStates][Action.NUM_ACTIONS];
-        this.rewards = new double[numStates][Action.NUM_ACTIONS];
+        this.immediateRewards = new double[numStates][Action.NUM_ACTIONS];
         setForbiddenDirectionRewards(nValue);
     }
 
     private void setForbiddenDirectionRewards(int nValue) {
         for (int i = 1; i <= nValue; i++) {
             // Going down on bottommost cells
-            setReward(i, Action.DOWN, -Double.MAX_VALUE);
+            setImmediateReward(i, Action.DOWN, -Double.MAX_VALUE);
             setQValue(i, Action.DOWN, -Double.MAX_VALUE);
             // Going left on leftmost cells
-            setReward(i * nValue, Action.LEFT, -Double.MAX_VALUE);
+            setImmediateReward(i * nValue, Action.LEFT, -Double.MAX_VALUE);
             setQValue(i * nValue, Action.LEFT, -Double.MAX_VALUE);
             // Going right on rightmost cells
-            setReward(((i - 1) * nValue) + 1, Action.RIGHT, -Double.MAX_VALUE);
+            setImmediateReward(((i - 1) * nValue) + 1, Action.RIGHT, -Double.MAX_VALUE);
             setQValue(((i - 1) * nValue) + 1, Action.RIGHT, -Double.MAX_VALUE);
             // Going up on upmost cells
-            setReward((nValue * (nValue - 1)) + i, Action.UP, -Double.MAX_VALUE);
+            setImmediateReward((nValue * (nValue - 1)) + i, Action.UP, -Double.MAX_VALUE);
             setQValue((nValue * (nValue - 1)) + i, Action.UP, -Double.MAX_VALUE);
         }
     }
@@ -68,31 +68,24 @@ public class QMatrix {
         return actionValueMatrix[state - 1][action.index];
     }
 
-    public void setQValue(int xCoor, int yCoor, Action action, double reward) {
-        // Check if the cell is in bounds
-        if ((xCoor >= 0 && xCoor < nValue) && (yCoor >= 0 && yCoor < nValue) ) {
-            setQValue(CoorStateConverter.toStateIndex(nValue, xCoor, yCoor), action, reward);
-        }
-    }
-
     public void setQValue(int state, Action action, double reward) {
         // -1 to convert from state index to array index.
         actionValueMatrix[state - 1][action.index] = reward;
     }
 
-    public double getReward(int state, Action action) {
-        return rewards[state - 1][action.index];
+    public double getImmediateReward(int state, Action action) {
+        return immediateRewards[state - 1][action.index];
     }
 
-    public void setReward(int xCoor, int yCoor, Action action, double reward) {
+    public void setImmediateReward(int xCoor, int yCoor, Action action, double reward) {
         // Check if the cell is in bounds
         if ((xCoor >= 0 && xCoor < nValue) && (yCoor >= 0 && yCoor < nValue) ) {
-            setReward(CoorStateConverter.toStateIndex(nValue, xCoor, yCoor), action, reward);
+            setImmediateReward(CoorStateConverter.toStateIndex(nValue, xCoor, yCoor), action, reward);
         }
     }
 
-    public void setReward(int state, Action action, double reward) {
+    public void setImmediateReward(int state, Action action, double reward) {
         // -1 to convert from state index to array index.
-        rewards[state - 1][action.index] = reward;
+        immediateRewards[state - 1][action.index] = reward;
     }
 }

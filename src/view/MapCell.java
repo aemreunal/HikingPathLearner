@@ -39,11 +39,14 @@ public class MapCell extends JPanel {
         this.qMatrix = qMatrix;
         this.state = state;
         this.numFormat = new DecimalFormat("#.####");
+        initCell(maze.getTerrainType(state));
+        initLabels();
+    }
+
+    private void initCell(TerrainType type) {
         setLayout(new GridLayout(NUM_ROWS, NUM_COLS));
         setBorder(new LineBorder(Color.BLACK, BORDER_THICKNESS));
-        initBackgroundColor(maze.getTerrainType(state));
-        initLabels();
-        update(7);
+        initBackgroundColor(type);
     }
 
     private void initBackgroundColor(TerrainType type) {
