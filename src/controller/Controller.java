@@ -16,6 +16,16 @@ import view.MapWindow;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
+/*
+ * The main algorithm is as follows:
+ * 1) Select action a and execute it
+ * 2) Receive immediate reward r
+ * 3) Observe new state s'
+ * 4) Update table entry for Q(s, a) as either of:
+ *     Q(s, a) = r(s, a) + y * maxQ(s', a')
+ * 5) Move: record transition from s to s'
+ */
+
 public class Controller extends Thread implements Runnable {
     private static final double DISCOUNT_FACTOR = 0.8;
     public static final double AGENT_RANDOM_MOVE_CHANCE = 0.3;
@@ -27,6 +37,7 @@ public class Controller extends Thread implements Runnable {
     private QMatrix qMatrix;
     private Maze maze;
     private MapWindow window;
+    private Agent agent;
 
     private int nValue;
     private int numStates; // = number of cells on the board
@@ -62,13 +73,11 @@ public class Controller extends Thread implements Runnable {
 
     @Override
     public void run() {
-        Agent agent = new Agent(nValue, qMatrix);
+        agent = new Agent(nValue, qMatrix);
         while (true) {
             if(agent.getCurrentState() == numStates) {
                 // Reached the end, create a new agent
-                agent = new Agent(nValue, qMatrix);
-                pauseThread(ONE_SECOND_IN_MILLIS);
-                continue;
+                restartAgent();
             }
 
             // Select action
@@ -89,6 +98,17 @@ public class Controller extends Thread implements Runnable {
 
             pauseThread(THREAD_SLEEP_TIME_MILLIS);
         }
+    }
+
+    private void restartAgent() {
+        agent = new Agent(nValue, qMatrix);
+
+        pauseThread(ONE_SECOND_IN_MILLIS / 2);
+
+        // Update window to reflect the new agent
+        window.update(agent.getCurrentState());
+
+        pauseThread(ONE_SECOND_IN_MILLIS / 2);
     }
 
     private void pauseThread(long milliseconds) {
