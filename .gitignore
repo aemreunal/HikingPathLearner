@@ -3,3 +3,7 @@ bin/
 .idea/
 
 *.iml
+
+src/META-INF/MANIFEST.MF
+
+out/

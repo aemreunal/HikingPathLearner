@@ -44,11 +44,22 @@ public class Controller extends Thread implements Runnable {
     private double rValue;
 
     public static void main(String[] args) {
-        System.out.println("Welcome to the minimum energy hiking path learner, written by A. Emre Unal.");
-        System.out.println("Discount factor = " + DISCOUNT_FACTOR);
-        System.out.println("Agent random move chance = " + AGENT_RANDOM_MOVE_CHANCE);
+        printProgramInfo();
         Controller controller = new Controller();
         controller.start();
+    }
+
+    private static void printProgramInfo() {
+        System.out.println("*********************************************************");
+        System.out.println("* Welcome to the minimum energy hiking path learner.");
+        System.out.println("* Written by A. Emre Unal (emre.unal@ozu.edu.tr).");
+        System.out.println("*");
+        System.out.println("* Discount factor = " + DISCOUNT_FACTOR);
+        System.out.println("* Agent random move chance = " + AGENT_RANDOM_MOVE_CHANCE);
+        System.out.println("* (The update speed, discount factor and agent random");
+        System.out.println("* move chance can be changed from the Controller.java");
+        System.out.println("* file fields.)");
+        System.out.println("*********************************************************");
     }
 
     public Controller() {
