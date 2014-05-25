@@ -18,11 +18,11 @@ import java.awt.*;
 import java.text.DecimalFormat;
 
 public class MapCell extends JPanel {
-    public static final int CELL_WIDTH = 80;
-    public static final int CELL_HEIGHT = 80;
+    public static final int CELL_WIDTH = 90;
+    public static final int CELL_HEIGHT = 90;
     private static final int BORDER_THICKNESS = 1;
-    private static final int GRID_HORIZONTAL_GAP = 10;
-    private static final int GRID_VERTICAL_GAP = 2;
+    private static final int NUM_ROWS = 5;
+    private static final int NUM_COLS = 1;
 
     private final QMatrix qMatrix;
 
@@ -39,7 +39,7 @@ public class MapCell extends JPanel {
         this.qMatrix = qMatrix;
         this.state = state;
         this.numFormat = new DecimalFormat("#.####");
-        setLayout(new GridLayout(5, 1, GRID_HORIZONTAL_GAP, GRID_VERTICAL_GAP));
+        setLayout(new GridLayout(NUM_ROWS, NUM_COLS));
         setBorder(new LineBorder(Color.BLACK, BORDER_THICKNESS));
         initBackgroundColor(maze.getTerrainType(state));
         initLabels();
@@ -55,7 +55,8 @@ public class MapCell extends JPanel {
     }
 
     private void initLabels() {
-        stateLabel = new JLabel("S: " + state);
+        stateLabel = new JLabel("State #" + state);
+        stateLabel.setForeground(Color.BLUE);
         this.add(stateLabel);
         rightRewardLabel = new JLabel("R: ");
         this.add(rightRewardLabel);
@@ -83,11 +84,11 @@ public class MapCell extends JPanel {
     }
 
     public void updateLabel(JLabel label, Action action) {
-        double reward = qMatrix.getReward(state, action);
-        if (reward == -Double.MAX_VALUE) {
+        double qValue = qMatrix.getQValue(state, action);
+        if (qValue == -Double.MAX_VALUE) {
             label.setText(action.text + "-Inf");
         } else {
-            label.setText(action.text + numFormat.format(qMatrix.getReward(state, action)));
+            label.setText(action.text + numFormat.format(qValue));
         }
     }
 }

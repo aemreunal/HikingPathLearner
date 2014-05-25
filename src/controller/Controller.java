@@ -17,9 +17,8 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class Controller extends Thread implements Runnable {
-    private static final double LEARNING_RATE = 0.8;
     private static final double DISCOUNT_FACTOR = 0.8;
-    private static final double UPDATE_FREQUENCY_HZ = 50;
+    private static final double UPDATE_FREQUENCY_HZ = 5;
     private static final long THREAD_SLEEP_TIME_MILLIS = (long) (1000 / UPDATE_FREQUENCY_HZ);
 
     private QMatrix qMatrix;
@@ -39,6 +38,8 @@ public class Controller extends Thread implements Runnable {
     public Controller() {
         requestParameters();
         initDataStructures();
+        System.out.println("Discount factor = " + DISCOUNT_FACTOR);
+        System.out.println("Agent random move chance = " + Agent.RANDOM_MOVE_CHANCE);
     }
 
     private void requestParameters() {
@@ -47,7 +48,7 @@ public class Controller extends Thread implements Runnable {
         nValue = scanner.nextInt();
         numStates = (int) Math.pow(nValue, 2);
         System.out.print("Please input the 'r' value ('r'% of the maze will have hills): ");
-        rValue = scanner.nextDouble();
+        rValue = scanner.nextDouble() / 100;
     }
 
     private void initDataStructures() {
@@ -61,7 +62,7 @@ public class Controller extends Thread implements Runnable {
         Agent agent = new Agent(nValue, qMatrix);
         while (true) {
             if(agent.getCurrentState() == numStates) {
-                // Reached the end
+                // Reached the end, create a new agent
                 agent = new Agent(nValue, qMatrix);
                 try {
                     TimeUnit.SECONDS.sleep(1);
@@ -71,21 +72,18 @@ public class Controller extends Thread implements Runnable {
                 }
             }
 
+            // Select action
             Action selectedAction = agent.selectAction();
+            // Execute action to get from state s to state s'
             agent.executeAction(selectedAction);
-            double reward = qMatrix.getReward(agent.getPreviousState(), selectedAction);
-            reward += DISCOUNT_FACTOR * qMatrix.getReward(agent.getCurrentState(), agent.pickMostRewardingAction());
-            qMatrix.setReward(agent.getPreviousState(), selectedAction, reward);
+            // Receive immediate reward r(s, a)
+            double immediateReward = qMatrix.getReward(agent.getPreviousState(), selectedAction);
+            // Update table entry for Q(s, a) as: Q(s, a) = r(s, a) + y * maxQ(s', a')
+            double newQValue = immediateReward + DISCOUNT_FACTOR * qMatrix.getQValue(agent.getCurrentState(), agent.pickMostRewardingAction());
+            qMatrix.setQValue(agent.getPreviousState(), selectedAction, newQValue);
+            // Update window to reflect state change
             window.update(agent.getCurrentState());
-            /*
-             * - Select action a and execute it (Max reward action at that state)
-             * - Receive immediate reward r
-             * - Observe new state s'
-             * - Update table entry for Q(s, a) as either of:
-             *     Q(s, a) = r(s, a) + y * maxQ(s', a')
-             *     Q(s, a) = B*[r(s, a) + y * maxQ(s', a') - Q(s, a)]
-             * - Move: record transition from s to s'
-             */
+
             try {
                 TimeUnit.MILLISECONDS.sleep(THREAD_SLEEP_TIME_MILLIS);
             } catch (InterruptedException e) {

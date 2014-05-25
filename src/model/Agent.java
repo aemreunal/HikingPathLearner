@@ -10,7 +10,7 @@ package model;
 import java.util.Random;
 
 public class Agent {
-    private static final double RANDOM_MOVE_CHANCE = 0.3;
+    public static final double RANDOM_MOVE_CHANCE = 0.3;
 
     private final int nValue;
     private QMatrix qMatrix;
@@ -49,7 +49,7 @@ public class Agent {
 
         for (int i = 0; i < Action.NUM_ACTIONS; i++) {
             Action consideredAction = Action.getAction(i);
-            double consideredReward = qMatrix.getReward(currentState, consideredAction);
+            double consideredReward = qMatrix.getQValue(currentState, consideredAction);
             if(i == 0 || (consideredReward > selectedReward && canExecuteAction(consideredAction))) {
                 selectedAction = consideredAction;
                 selectedReward = consideredReward;
