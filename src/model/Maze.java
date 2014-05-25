@@ -14,21 +14,22 @@ import java.util.Random;
 
 /*
  *---------------------------------------------------------------
- * The bottom-right cell/state has number = 1
- * The top-left end cell/state has number = numStates^2
+ * The bottom-right cell/state has state index = 1
+ * The top-left end cell/state has state index = nValue^2 = numStates
  *
- *  |----|----|----|----|-----------|
- *  | n*n|....|....|....|(n*(n-1))+1| n-1
- *  |----|----|----|----|-----------|
- *  |....|....|....|....|...........| ...
- *  |----|----|----|----|-----------|
- *  | 3n |....|....|....|   2n+1    |  2
- *  |----|----|----|----|-----------|
- *  | 2n |....|....| n+2|    n+1    |  1
- *  |----|----|----|----|-----------|
- *  | 1n |....|....|  2 |      1    |  0
- *  |----|----|----|----|-----------|
- *   n-1  n-2  ...   1        0
+ *                                      y:
+ *    |----|----|----|----|-----------|
+ *    | n*n|....|....|....|(n*(n-1))+1| n-1
+ *    |----|----|----|----|-----------|
+ *    |....|....|....|....|...........| ...
+ *    |----|----|----|----|-----------|
+ *    | 3n |....|....|....|   2n+1    |  2
+ *    |----|----|----|----|-----------|
+ *    | 2n |2n-1|....| n+2|    n+1    |  1
+ *    |----|----|----|----|-----------|
+ *    | 1n | n-1|....|  2 |      1    |  0
+ *    |----|----|----|----|-----------|
+ *  x: n-1  n-2  ...   1        0
  *
  *---------------------------------------------------------------
  */
@@ -44,7 +45,7 @@ public class Maze {
     public Maze(int nValue, double rValue, QMatrix qMatrix) {
         this.nValue = nValue;
         this.qMatrix = qMatrix;
-        this.numHills = (int) (Math.pow(nValue, 2) * rValue);
+        this.numHills = (int) Math.ceil(Math.pow(nValue, 2) * rValue);
         this.maze = new TerrainType[nValue][nValue];
         initMaze();
     }
@@ -81,23 +82,43 @@ public class Maze {
         }
     }
 
+    public TerrainType getTerrainType(int state) {
+        return getTerrainType(toXCoor(state), toYCoor(state));
+    }
+
     public TerrainType getTerrainType(int xCoor, int yCoor) {
-        return maze[nValue - xCoor][nValue - yCoor];
+        return maze[nValue - xCoor - 1][nValue - yCoor - 1];
     }
 
     public void setTerrainTypeAndRewards(int xCoor, int yCoor, TerrainType type) {
-        maze[nValue - xCoor][nValue - yCoor] = type;
+        maze[nValue - xCoor - 1][nValue - yCoor - 1] = type;
         setSurroundingRewards(xCoor, yCoor, type);
     }
 
     private void setSurroundingRewards(int xCoor, int yCoor, TerrainType type) {
         // Arriving to this tile from above
-        qMatrix.setReward(xCoor, yCoor - 1, Action.DOWN, type.reward);
+        qMatrix.setReward(xCoor, yCoor + 1, Action.DOWN, type.reward);
         // Arriving to this tile from below
-        qMatrix.setReward(xCoor, yCoor + 1, Action.UP, type.reward);
+        qMatrix.setReward(xCoor, yCoor - 1, Action.UP, type.reward);
         // Arriving to this tile from left
-        qMatrix.setReward(xCoor - 1, yCoor, Action.RIGHT, type.reward);
+        qMatrix.setReward(xCoor + 1, yCoor, Action.RIGHT, type.reward);
         // Arriving to this tile from right
-        qMatrix.setReward(xCoor + 1, yCoor, Action.LEFT, type.reward);
+        qMatrix.setReward(xCoor - 1, yCoor, Action.LEFT, type.reward);
+    }
+
+    public int toXCoor(int state) {
+        if (state % nValue == 0) {
+            return nValue - 1;
+        } else {
+            return (state % nValue) - 1;
+        }
+    }
+
+    public int toYCoor(int state) {
+        if (state % nValue == 0) {
+            return (state / nValue) - 1;
+        } else {
+            return (state / nValue);
+        }
     }
 }

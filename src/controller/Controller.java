@@ -9,6 +9,7 @@ package controller;
 
 import model.Maze;
 import model.QMatrix;
+import view.MapWindow;
 
 import java.util.Scanner;
 
@@ -30,7 +31,7 @@ public class Controller {
     public Controller() {
         scanner = new Scanner(System.in);
         requestParameters();
-        initSystem();
+        initDataStructures();
     }
 
     private void requestParameters() {
@@ -41,8 +42,10 @@ public class Controller {
         rValue = scanner.nextDouble();
     }
 
-    private void initSystem() {
+    private void initDataStructures() {
         qMatrix = new QMatrix(nValue);
         maze = new Maze(nValue, rValue, qMatrix);
+        new MapWindow(nValue, maze, qMatrix);
+        rValue = scanner.nextDouble();
     }
 }

@@ -11,19 +11,20 @@ package model;
  *---------------------------------------------------------------
  * The bottom-right cell/state has state index = 1
  * The top-left end cell/state has state index = nValue^2 = numStates
+ *
  *                                      y:
- *   |----|----|----|----|-----------|
- *   | n*n|....|....|....|(n*(n-1))+1| n-1
- *   |----|----|----|----|-----------|
- *   |....|....|....|....|...........| ...
- *   |----|----|----|----|-----------|
- *   | 3n |....|....|....|   2n+1    |  2
- *   |----|----|----|----|-----------|
- *   | 2n |2n-1|....| n+2|    n+1    |  1
- *   |----|----|----|----|-----------|
- *   | 1n | n-1|....|  2 |      1    |  0
- *   |----|----|----|----|-----------|
- * x: n-1  n-2  ...   1        0
+ *    |----|----|----|----|-----------|
+ *    | n*n|....|....|....|(n*(n-1))+1| n-1
+ *    |----|----|----|----|-----------|
+ *    |....|....|....|....|...........| ...
+ *    |----|----|----|----|-----------|
+ *    | 3n |....|....|....|   2n+1    |  2
+ *    |----|----|----|----|-----------|
+ *    | 2n |2n-1|....| n+2|    n+1    |  1
+ *    |----|----|----|----|-----------|
+ *    | 1n | n-1|....|  2 |      1    |  0
+ *    |----|----|----|----|-----------|
+ *  x: n-1  n-2  ...   1        0
  *
  *
  * The state-index matrix has:
@@ -47,15 +48,15 @@ public class QMatrix {
     }
 
     private void setForbiddenDirectionRewards(int nValue) {
-        for (int i = 0; i < nValue; i++) {
+        for (int i = 1; i <= nValue; i++) {
             // Going down on bottommost cells
-            setReward(i, Action.DOWN, -Double.MAX_VALUE);
+            setReward(i, Action.DOWN, Double.MIN_VALUE);
             // Going left on leftmost cells
-            setReward(i * nValue, Action.LEFT, -Double.MAX_VALUE);
+            setReward(i * nValue, Action.LEFT, Double.MIN_VALUE);
             // Going right on rightmost cells
-            setReward(((i - 1) * nValue) + 1, Action.RIGHT, -Double.MAX_VALUE);
+            setReward(((i - 1) * nValue) + 1, Action.RIGHT, Double.MIN_VALUE);
             // Going up on upmost cells
-            setReward((nValue * (nValue - 1)) + i, Action.UP, -Double.MAX_VALUE);
+            setReward((nValue * (nValue - 1)) + i, Action.UP, Double.MIN_VALUE);
         }
     }
 
