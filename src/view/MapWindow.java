@@ -24,12 +24,7 @@ public class MapWindow extends JFrame {
         setLayout(new BorderLayout());
         initMainPanel();
         initMapCells(maze, qMatrix);
-
-        setMinimumSize(new Dimension(nValue * MapCell.CELL_WIDTH, nValue * MapCell.CELL_HEIGHT));
-        pack();
-
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setVisible(true);
+        initWindow(nValue);
     }
 
     private void initMainPanel() {
@@ -51,10 +46,17 @@ public class MapWindow extends JFrame {
         }
     }
 
-    public void updateCells() {
+    private void initWindow(int nValue) {
+        setMinimumSize(new Dimension(nValue * MapCell.CELL_WIDTH, nValue * MapCell.CELL_HEIGHT));
+        pack();
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setVisible(true);
+    }
+
+    public void update(int currStateOfAgent) {
         for (int row = 0; row < nValue; row++) {
             for (int col = 0; col < nValue; col++) {
-                cells[row][col].updateRewardLabels();
+                cells[row][col].update(currStateOfAgent);
             }
         }
     }

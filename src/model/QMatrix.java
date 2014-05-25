@@ -50,18 +50,18 @@ public class QMatrix {
     private void setForbiddenDirectionRewards(int nValue) {
         for (int i = 1; i <= nValue; i++) {
             // Going down on bottommost cells
-            setReward(i, Action.DOWN, Double.MIN_VALUE);
+            setReward(i, Action.DOWN, -Double.MAX_VALUE);
             // Going left on leftmost cells
-            setReward(i * nValue, Action.LEFT, Double.MIN_VALUE);
+            setReward(i * nValue, Action.LEFT, -Double.MAX_VALUE);
             // Going right on rightmost cells
-            setReward(((i - 1) * nValue) + 1, Action.RIGHT, Double.MIN_VALUE);
+            setReward(((i - 1) * nValue) + 1, Action.RIGHT, -Double.MAX_VALUE);
             // Going up on upmost cells
-            setReward((nValue * (nValue - 1)) + i, Action.UP, Double.MIN_VALUE);
+            setReward((nValue * (nValue - 1)) + i, Action.UP, -Double.MAX_VALUE);
         }
     }
 
     public double getReward(int state, Action action) {
-        return actionValueMatrix[state][action.index];
+        return actionValueMatrix[state - 1][action.index];
     }
 
     public void setReward(int xCoor, int yCoor, Action action, double reward) {

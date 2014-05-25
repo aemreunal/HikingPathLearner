@@ -46,6 +46,5 @@ public class Controller {
         qMatrix = new QMatrix(nValue);
         maze = new Maze(nValue, rValue, qMatrix);
         new MapWindow(nValue, maze, qMatrix);
-        rValue = scanner.nextDouble();
     }
 }
