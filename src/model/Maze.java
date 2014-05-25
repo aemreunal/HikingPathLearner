@@ -7,9 +7,6 @@ package model;
  * emre.unal@ozu.edu.tr
  */
 
-import global.Action;
-import global.TerrainType;
-
 import java.util.Random;
 
 /*

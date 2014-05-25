@@ -33,8 +33,6 @@ package model;
  *---------------------------------------------------------------
  */
 
-import global.Action;
-
 public class QMatrix {
     private int nValue;
     private int numStates;
@@ -43,7 +41,7 @@ public class QMatrix {
     public QMatrix(int nValue) {
         this.nValue = nValue;
         this.numStates = (int) Math.pow(nValue, 2);
-        this.actionValueMatrix = new double[numStates][Action.values().length];
+        this.actionValueMatrix = new double[numStates][Action.NUM_ACTIONS];
         setForbiddenDirectionRewards(nValue);
     }
 

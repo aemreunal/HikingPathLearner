@@ -7,8 +7,8 @@ package view;
  * emre.unal@ozu.edu.tr
  */
 
-import global.Action;
-import global.TerrainType;
+import model.Action;
+import model.TerrainType;
 import model.Maze;
 import model.QMatrix;
 
@@ -43,7 +43,7 @@ public class MapCell extends JPanel {
         setBorder(new LineBorder(Color.BLACK, BORDER_THICKNESS));
         initBackgroundColor(maze.getTerrainType(state));
         initLabels();
-        update(0);
+        update(7);
     }
 
     private void initBackgroundColor(TerrainType type) {
@@ -75,7 +75,7 @@ public class MapCell extends JPanel {
 
         if (currStateOfAgent == state) {
             // Agent is in this state/cell
-            setBorder(new LineBorder(Color.RED, BORDER_THICKNESS * 2));
+            setBorder(new LineBorder(Color.RED, BORDER_THICKNESS * 3));
         } else {
             // Agent is in another state/cell
             setBorder(new LineBorder(Color.BLACK, BORDER_THICKNESS));

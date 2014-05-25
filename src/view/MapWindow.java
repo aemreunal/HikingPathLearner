@@ -24,7 +24,7 @@ public class MapWindow extends JFrame {
         setLayout(new BorderLayout());
         initMainPanel();
         initMapCells(maze, qMatrix);
-        initWindow(nValue);
+        initWindow();
     }
 
     private void initMainPanel() {
@@ -46,7 +46,7 @@ public class MapWindow extends JFrame {
         }
     }
 
-    private void initWindow(int nValue) {
+    private void initWindow() {
         setMinimumSize(new Dimension(nValue * MapCell.CELL_WIDTH, nValue * MapCell.CELL_HEIGHT));
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

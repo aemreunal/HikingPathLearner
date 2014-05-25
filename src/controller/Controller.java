@@ -12,29 +12,35 @@ import model.QMatrix;
 import view.MapWindow;
 
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
-public class Controller {
-    private Scanner scanner;
+public class Controller extends Thread implements Runnable {
+//    private static final double LEARNING_RATE = 0.8;
+    private static final double DISCOUNT_FACTOR = 0.8;
+    private static final double UPDATE_FREQUENCY_HZ = 2;
+    private static final long THREAD_SLEEP_TIME_MILLIS = (long) (1000 / UPDATE_FREQUENCY_HZ);
+
+    private QMatrix qMatrix;
+    private Maze maze;
+    private MapWindow window;
 
     private int nValue;
     private int numStates; // = number of cells on the board
     private double rValue;
 
-    private QMatrix qMatrix;
-    private Maze maze;
-
     public static void main(String[] args) {
         System.out.println("Welcome to the minimum energy hiking path learner, written by A. Emre Unal.");
-        new Controller();
+        Controller controller = new Controller();
+//        controller.start();
     }
 
     public Controller() {
-        scanner = new Scanner(System.in);
         requestParameters();
         initDataStructures();
     }
 
     private void requestParameters() {
+        Scanner scanner = new Scanner(System.in);
         System.out.print("Please input the 'N' value (the maze size will be 'N'-by-'N'): ");
         nValue = scanner.nextInt();
         numStates = (int) Math.pow(nValue, 2);
@@ -45,6 +51,27 @@ public class Controller {
     private void initDataStructures() {
         qMatrix = new QMatrix(nValue);
         maze = new Maze(nValue, rValue, qMatrix);
-        new MapWindow(nValue, maze, qMatrix);
+        window = new MapWindow(nValue, maze, qMatrix);
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            /*
+             * - Select action a and execute it (Max reward action at that state)
+             * - Receive immediate reward r
+             * - Observe new state s'
+             * - Update table entry for Q(s, a) as either of:
+             *     Q(s, a) = r(s, a) + y * maxQ(s', a')
+             *     Q(s, a) = B*[r(s, a) + y * maxQ(s', a') - Q(s, a)]
+             * - Move: record transition from s to s'
+             */
+            try {
+                TimeUnit.MILLISECONDS.sleep(THREAD_SLEEP_TIME_MILLIS);
+            } catch (InterruptedException e) {
+                System.err.println("Main thread is interrupted!\nExiting.");
+                System.exit(-1);
+            }
+        }
     }
 }
