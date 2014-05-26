@@ -48,6 +48,7 @@ public class MapWindow extends JFrame {
 
     private void initWindow() {
         update(1);
+        setTitle("Hiking Path Learner");
         setMinimumSize(new Dimension(nValue * MapCell.CELL_WIDTH, nValue * MapCell.CELL_HEIGHT));
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

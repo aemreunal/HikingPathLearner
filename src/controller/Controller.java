@@ -23,12 +23,15 @@ import java.util.concurrent.TimeUnit;
  * 3) Observe new state s'
  * 4) Update table entry for Q(s, a) as either of:
  *     Q(s, a) = r(s, a) + y * maxQ(s', a')
+ *     Q(s, a) = B*[r(s, a) + y * maxQ(s', a') - Q(s, a)]
  * 5) Move: record transition from s to s'
  */
 
 public class Controller extends Thread implements Runnable {
+    private static final boolean USING_LEARNING_RATE_ALGORITHM = true;
+    private static final double LEARNING_RATE = 0.8;
     private static final double DISCOUNT_FACTOR = 0.8;
-    public static final double AGENT_RANDOM_MOVE_CHANCE = 0.3;
+    public static final double AGENT_RANDOM_MOVE_CHANCE = 0.4;
 
     private static final double UPDATE_FREQUENCY_HZ = 5;
     private static final long ONE_SECOND_IN_MILLIS = 1000;
@@ -86,7 +89,7 @@ public class Controller extends Thread implements Runnable {
     public void run() {
         agent = new Agent(nValue, qMatrix);
         while (true) {
-            if(agent.getCurrentState() == numStates) {
+            if (agent.getCurrentState() == numStates) {
                 // Reached the end, create a new agent
                 restartAgent();
             }
@@ -100,9 +103,17 @@ public class Controller extends Thread implements Runnable {
             // Receive immediate reward r(s, a)
             double immediateReward = qMatrix.getImmediateReward(agent.getPreviousState(), selectedAction);
 
-            // Update table entry for Q(s, a) as: Q(s, a) = r(s, a) + y * maxQ(s', a')
-            double newQValue = immediateReward + DISCOUNT_FACTOR * qMatrix.getQValue(agent.getCurrentState(), agent.pickMaxQValueAction());
-            qMatrix.setQValue(agent.getPreviousState(), selectedAction, newQValue);
+            if (USING_LEARNING_RATE_ALGORITHM) {
+                // Update table entry for Q(s, a) as: Q(s, a) += B*[r(s, a) + y * maxQ(s', a') - Q(s, a)]
+                double previousQValue = qMatrix.getQValue(agent.getPreviousState(), selectedAction);
+                double newQValue = immediateReward + DISCOUNT_FACTOR * qMatrix.getQValue(agent.getCurrentState(), agent.pickMaxQValueAction()) - previousQValue;
+                newQValue = previousQValue + LEARNING_RATE * newQValue;
+                qMatrix.setQValue(agent.getPreviousState(), selectedAction, newQValue);
+            } else {
+                // Update table entry for Q(s, a) as: Q(s, a) = r(s, a) + y * maxQ(s', a')
+                double newQValue = immediateReward + DISCOUNT_FACTOR * qMatrix.getQValue(agent.getCurrentState(), agent.pickMaxQValueAction());
+                qMatrix.setQValue(agent.getPreviousState(), selectedAction, newQValue);
+            }
 
             // Update window to reflect state change
             window.update(agent.getCurrentState());
