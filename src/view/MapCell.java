@@ -8,14 +8,14 @@ package view;
  */
 
 import model.Action;
-import model.TerrainType;
 import model.Maze;
 import model.QMatrix;
+import model.TerrainType;
 
-import javax.swing.*;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.text.DecimalFormat;
+import javax.swing.*;
+import javax.swing.border.LineBorder;
 
 public class MapCell extends JPanel {
     public static final int CELL_WIDTH = 90;
@@ -32,6 +32,9 @@ public class MapCell extends JPanel {
     private JLabel leftRewardLabel;
     private JLabel upRewardLabel;
     private JLabel downRewardLabel;
+
+    private JLabel currentMaxRewardLabel;
+    private double currentMaxReward = -Integer.MAX_VALUE;
 
     private DecimalFormat numFormat;
 
@@ -72,10 +75,12 @@ public class MapCell extends JPanel {
     }
 
     public void update(int currStateOfAgent) {
+        resetColors();
         updateLabel(rightRewardLabel, Action.RIGHT);
         updateLabel(leftRewardLabel, Action.LEFT);
         updateLabel(upRewardLabel, Action.UP);
         updateLabel(downRewardLabel, Action.DOWN);
+        setMinChoiceColor();
 
         if (currStateOfAgent == state) {
             // Agent is in this state/cell
@@ -86,6 +91,13 @@ public class MapCell extends JPanel {
         }
     }
 
+    private void resetColors() {
+        rightRewardLabel.setForeground(Color.BLACK);
+        leftRewardLabel.setForeground(Color.BLACK);
+        upRewardLabel.setForeground(Color.BLACK);
+        downRewardLabel.setForeground(Color.BLACK);
+    }
+
     public void updateLabel(JLabel label, Action action) {
         double qValue = qMatrix.getQValue(state, action);
         if (qValue == -Double.MAX_VALUE) {
@@ -93,5 +105,14 @@ public class MapCell extends JPanel {
         } else {
             label.setText(action.text + numFormat.format(qValue));
         }
+        if(qValue > currentMaxReward) {
+            currentMaxReward = qValue;
+            currentMaxRewardLabel = label;
+        }
+    }
+
+    private void setMinChoiceColor() {
+        currentMaxRewardLabel.setForeground(Color.RED);
+        currentMaxReward = -Integer.MAX_VALUE;
     }
 }

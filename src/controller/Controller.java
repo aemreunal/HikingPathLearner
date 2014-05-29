@@ -29,13 +29,18 @@ import java.util.concurrent.TimeUnit;
 
 public class Controller extends Thread implements Runnable {
     private static final boolean USING_LEARNING_RATE_ALGORITHM = true;
-    private static final double LEARNING_RATE = 0.8;
-    private static final double DISCOUNT_FACTOR = 0.8;
-    public static final double AGENT_RANDOM_MOVE_CHANCE = 0.4;
+    private static final double LEARNING_RATE = 0.5;
+    private static final double DISCOUNT_FACTOR = 0.99;
+    public static final double AGENT_RANDOM_MOVE_CHANCE = 0.8;
 
     private static final double UPDATE_FREQUENCY_HZ = 5;
     private static final long ONE_SECOND_IN_MILLIS = 1000;
     private static final long THREAD_SLEEP_TIME_MILLIS = (long) (ONE_SECOND_IN_MILLIS / UPDATE_FREQUENCY_HZ);
+
+    private static boolean animating = true;
+    private int loopCountLimit = 10000;
+    private int count = 0;
+    private boolean valueChanged = false;
 
     private QMatrix qMatrix;
     private Maze maze;
@@ -75,8 +80,12 @@ public class Controller extends Thread implements Runnable {
         System.out.print("Please input the 'N' value (the maze size will be 'N'-by-'N'): ");
         nValue = scanner.nextInt();
         numStates = (int) Math.pow(nValue, 2);
+        loopCountLimit *= nValue;
         System.out.print("Please input the 'r' value ('r'% of the maze will have hills): ");
         rValue = scanner.nextDouble() / 100;
+        System.out.print("Would you like to see animation? (y/n): ");
+        String choice = scanner.next();
+        animating = choice.charAt(0) == 'y';
     }
 
     private void initDataStructures() {
@@ -89,7 +98,15 @@ public class Controller extends Thread implements Runnable {
     public void run() {
         agent = new Agent(nValue, qMatrix);
         while (true) {
+            count++;
             if (agent.getCurrentState() == numStates) {
+                if (count > loopCountLimit) {
+                    if (valueChanged) {
+                        count = 0;
+                    } else {
+                        break;
+                    }
+                }
                 // Reached the end, create a new agent
                 restartAgent();
             }
@@ -109,28 +126,45 @@ public class Controller extends Thread implements Runnable {
                 double newQValue = immediateReward + DISCOUNT_FACTOR * qMatrix.getQValue(agent.getCurrentState(), agent.pickMaxQValueAction()) - previousQValue;
                 newQValue = previousQValue + LEARNING_RATE * newQValue;
                 qMatrix.setQValue(agent.getPreviousState(), selectedAction, newQValue);
+                checkIfValueChanged(previousQValue, newQValue);
             } else {
                 // Update table entry for Q(s, a) as: Q(s, a) = r(s, a) + y * maxQ(s', a')
+                double previousQValue = qMatrix.getQValue(agent.getPreviousState(), selectedAction);
                 double newQValue = immediateReward + DISCOUNT_FACTOR * qMatrix.getQValue(agent.getCurrentState(), agent.pickMaxQValueAction());
                 qMatrix.setQValue(agent.getPreviousState(), selectedAction, newQValue);
+                checkIfValueChanged(previousQValue, newQValue);
             }
 
-            // Update window to reflect state change
-            window.update(agent.getCurrentState());
+            // Check if animation is selected, update window accordingly
+            if (animating) {
+                // Update window to reflect state change
+                window.update(agent.getCurrentState());
 
-            pauseThread(THREAD_SLEEP_TIME_MILLIS);
+                pauseThread(THREAD_SLEEP_TIME_MILLIS);
+            }
         }
+
+        // Update window to reflect state change
+        window.update(agent.getCurrentState());
+        System.out.println("Learning finished.");
+    }
+
+    private void checkIfValueChanged(double previousQValue, double newQValue) {
+        valueChanged = (previousQValue != newQValue);
     }
 
     private void restartAgent() {
         agent = new Agent(nValue, qMatrix);
 
-        pauseThread(ONE_SECOND_IN_MILLIS / 2);
+        // Check if animation is selected, update window accordingly
+        if (animating) {
+            pauseThread(ONE_SECOND_IN_MILLIS / 2);
 
-        // Update window to reflect the new agent
-        window.update(agent.getCurrentState());
+            // Update window to reflect the new agent
+            window.update(agent.getCurrentState());
 
-        pauseThread(ONE_SECOND_IN_MILLIS / 2);
+            pauseThread(ONE_SECOND_IN_MILLIS / 2);
+        }
     }
 
     private void pauseThread(long milliseconds) {
